@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Simulado de Licenciamento de Seguros</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <section id="startScreen" class="screen start-screen">
+        <div class="brand">
+          <span class="brand-mark">MSM</span>
+          <div>
+            <p class="eyebrow">Estudo para prova nos EUA</p>
+            <h1>Simulado de Licenciamento de Seguros</h1>
+          </div>
+        </div>
+
+        <div class="start-grid">
+          <form id="startForm" class="panel setup-panel">
+            <label>
+              Nome do aluno
+              <input id="studentName" type="text" autocomplete="name" placeholder="Digite seu nome" required />
+            </label>
+
+            <div class="field">
+              <span>Quantidade de questões</span>
+              <div class="segmented" role="radiogroup" aria-label="Quantidade de questões">
+                <label><input type="radio" name="questionCount" value="25" checked />25</label>
+                <label><input type="radio" name="questionCount" value="50" />50</label>
+                <label><input type="radio" name="questionCount" value="100" />100</label>
+              </div>
+            </div>
+
+            <div class="field">
+              <span>Modo</span>
+              <div class="segmented wide" role="radiogroup" aria-label="Modo do simulado">
+                <label><input type="radio" name="mode" value="exam" checked />Prova</label>
+                <label><input type="radio" name="mode" value="study" />Estudo</label>
+              </div>
+            </div>
+
+            <div class="field">
+              <span>Filtro de questões</span>
+              <div class="segmented jurisdiction" role="radiogroup" aria-label="Filtro de questões por estado">
+                <label><input type="radio" name="jurisdiction" value="GENERAL" checked />Gerais</label>
+                <label><input type="radio" name="jurisdiction" value="MA" />MA</label>
+                <label><input type="radio" name="jurisdiction" value="FL" />FL</label>
+                <label><input type="radio" name="jurisdiction" value="ALL" />Todas</label>
+              </div>
+            </div>
+
+            <label class="toggle">
+              <input id="includeReview" type="checkbox" />
+              <span>Incluir questões marcadas para revisão</span>
+            </label>
+
+            <button class="primary" type="submit">Iniciar simulado</button>
+          </form>
+
+          <aside class="panel summary-panel">
+            <div class="stat">
+              <strong id="bankTotal">0</strong>
+              <span>questões no banco</span>
+            </div>
+            <div class="stat">
+              <strong id="reviewTotal">0</strong>
+              <span>marcadas para revisão</span>
+            </div>
+            <div class="jurisdiction-counts">
+              <div><strong id="generalTotal">0</strong><span>gerais</span></div>
+              <div><strong id="maTotal">0</strong><span>MA</span></div>
+              <div><strong id="flTotal">0</strong><span>FL</span></div>
+            </div>
+            <p>
+              As questões foram estruturadas a partir do arquivo original. Quando o próprio material parece incompleto ou inconsistente, a questão fica sinalizada para revisão.
+            </p>
+          </aside>
+        </div>
+
+        <section class="history-section">
+          <div class="section-head">
+            <h2>Histórico local</h2>
+            <button id="clearHistory" class="ghost" type="button">Limpar histórico</button>
+          </div>
+          <div id="historyList" class="history-list empty">Nenhuma tentativa registrada neste navegador.</div>
+        </section>
+      </section>
+
+      <section id="quizScreen" class="screen hidden">
+        <header class="quiz-header">
+          <div>
+            <p id="quizMeta" class="eyebrow"></p>
+            <h2 id="questionCounter"></h2>
+          </div>
+          <button id="exitQuiz" class="ghost" type="button">Sair</button>
+        </header>
+        <div class="progress-track" aria-label="Progresso">
+          <div id="progressBar" class="progress-bar"></div>
+        </div>
+
+        <article class="question-panel">
+          <div class="question-topline">
+            <span id="themeTag" class="tag"></span>
+            <span id="reviewTag" class="tag review hidden">Revisar</span>
+          </div>
+          <h3 id="questionText"></h3>
+          <div id="optionsList" class="options-list"></div>
+          <div id="feedbackBox" class="feedback hidden"></div>
+        </article>
+
+        <footer class="quiz-actions">
+          <button id="prevQuestion" class="secondary" type="button">Voltar</button>
+          <button id="nextQuestion" class="primary" type="button">Próxima</button>
+          <button id="finishQuiz" class="primary hidden" type="button">Finalizar</button>
+        </footer>
+      </section>
+
+      <section id="resultScreen" class="screen hidden">
+        <header class="result-header">
+          <div>
+            <p id="resultStudent" class="eyebrow"></p>
+            <h2>Resultado final</h2>
+          </div>
+          <button id="newAttempt" class="primary" type="button">Novo simulado</button>
+        </header>
+
+        <div class="result-grid">
+          <div class="panel score-card">
+            <strong id="finalScore"></strong>
+            <span id="finalPercent"></span>
+          </div>
+          <div class="panel">
+            <h3>Desempenho por tema</h3>
+            <div id="themePerformance" class="theme-performance"></div>
+          </div>
+        </div>
+
+        <section class="panel missed-panel">
+          <h3>Questões erradas</h3>
+          <div id="missedQuestions" class="missed-list"></div>
+        </section>
+      </section>
+    </main>
+
+    <script src="questions.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
