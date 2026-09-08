@@ -10,20 +10,27 @@
     <main class="app">
       <section id="startScreen" class="screen start-screen">
         <div class="brand">
-          <span class="brand-mark">MSM</span>
-          <div>
-            <p class="eyebrow">Estudo para prova nos EUA</p>
-            <h1>Simulado de Licenciamento de Seguros</h1>
-          </div>
+          <img class="brand-logo eagle-logo" src="assets/eagle-header.png" alt="Eagle Life" />
+          <img class="brand-logo msm-logo" src="assets/msm-logo.png" alt="M$M MoneySource Management" />
         </div>
 
-        <div class="start-grid">
-          <form id="startForm" class="panel setup-panel">
-            <label>
-              Nome do aluno
-              <input id="studentName" type="text" autocomplete="name" placeholder="Digite seu nome" required />
-            </label>
+        <header class="start-title">
+          <h1>Simulado de Licenciamento de Seguros</h1>
+        </header>
 
+        <section id="resumeBox" class="resume-box hidden">
+          <div>
+            <strong>Simulado em andamento</strong>
+            <span id="resumeInfo"></span>
+          </div>
+          <div class="resume-actions">
+            <button id="resumeAttempt" class="primary" type="button">Continuar</button>
+            <button id="discardAttempt" class="ghost" type="button">Descartar</button>
+          </div>
+        </section>
+
+        <div class="start-grid single">
+          <form id="startForm" class="panel setup-panel">
             <div class="field">
               <span>Quantidade de questões</span>
               <div class="segmented" role="radiogroup" aria-label="Quantidade de questões">
@@ -36,47 +43,46 @@
             <div class="field">
               <span>Modo</span>
               <div class="segmented wide" role="radiogroup" aria-label="Modo do simulado">
-                <label><input type="radio" name="mode" value="exam" checked />Prova</label>
-                <label><input type="radio" name="mode" value="study" />Estudo</label>
+                <label><input type="radio" name="mode" value="study" checked />Estudo</label>
+                <label><input type="radio" name="mode" value="exam" />Prova</label>
+              </div>
+              <p class="helper-text">No modo Prova, o cronômetro inicia automaticamente: 25 questões = 30 min, 50 = 60 min, 100 = 120 min.</p>
+            </div>
+
+            <label class="obs-field">
+              Obs.
+              <input id="studentName" type="text" placeholder="Ex.: estudo de annuities, turma de sábado, revisão MA" />
+            </label>
+
+            <div class="field">
+              <span>Filtro de questões</span>
+              <div class="multi-segmented jurisdiction" aria-label="Filtro de questões por estado">
+                <label><input type="checkbox" name="jurisdictions" value="GENERAL" checked />Gerais</label>
+                <label><input type="checkbox" name="jurisdictions" value="MA" />MA</label>
+                <label><input type="checkbox" name="jurisdictions" value="FL" />FL</label>
               </div>
             </div>
 
             <div class="field">
-              <span>Filtro de questões</span>
-              <div class="segmented jurisdiction" role="radiogroup" aria-label="Filtro de questões por estado">
-                <label><input type="radio" name="jurisdiction" value="GENERAL" checked />Gerais</label>
-                <label><input type="radio" name="jurisdiction" value="MA" />MA</label>
-                <label><input type="radio" name="jurisdiction" value="FL" />FL</label>
-                <label><input type="radio" name="jurisdiction" value="ALL" />Todas</label>
+              <span>Foco de estudo</span>
+              <div class="segmented focus-mode" role="radiogroup" aria-label="Foco de estudo">
+                <label><input type="radio" name="focusMode" value="all" checked />Todas</label>
+                <label><input type="radio" name="focusMode" value="wrong" />Mais erradas</label>
+                <label><input type="radio" name="focusMode" value="saved" />Salvas</label>
               </div>
+              <p class="helper-text">“Mais erradas” usa o histórico deste navegador. “Salvas” usa as questões marcadas durante o estudo.</p>
             </div>
 
-            <label class="toggle">
-              <input id="includeReview" type="checkbox" />
-              <span>Incluir questões marcadas para revisão</span>
-            </label>
+            <div class="field themes-field">
+              <div class="field-title-row">
+                <span>Temas</span>
+                <button id="clearThemes" class="link-button" type="button">Todos</button>
+              </div>
+              <div id="themeFilter" class="theme-filter"></div>
+            </div>
 
-            <button class="primary" type="submit">Iniciar simulado</button>
+            <button class="primary start-button" type="submit">Iniciar simulado</button>
           </form>
-
-          <aside class="panel summary-panel">
-            <div class="stat">
-              <strong id="bankTotal">0</strong>
-              <span>questões no banco</span>
-            </div>
-            <div class="stat">
-              <strong id="reviewTotal">0</strong>
-              <span>marcadas para revisão</span>
-            </div>
-            <div class="jurisdiction-counts">
-              <div><strong id="generalTotal">0</strong><span>gerais</span></div>
-              <div><strong id="maTotal">0</strong><span>MA</span></div>
-              <div><strong id="flTotal">0</strong><span>FL</span></div>
-            </div>
-            <p>
-              As questões foram estruturadas a partir do arquivo original. Quando o próprio material parece incompleto ou inconsistente, a questão fica sinalizada para revisão.
-            </p>
-          </aside>
         </div>
 
         <section class="history-section">
@@ -91,10 +97,14 @@
       <section id="quizScreen" class="screen hidden">
         <header class="quiz-header">
           <div>
-            <p id="quizMeta" class="eyebrow"></p>
+            <p id="quizMeta" class="eyebrow quiz-meta"></p>
             <h2 id="questionCounter"></h2>
           </div>
-          <button id="exitQuiz" class="ghost" type="button">Sair</button>
+          <div class="quiz-header-actions">
+            <span id="timerBox" class="timer-box hidden">00:00</span>
+            <button id="saveProgress" class="secondary" type="button">Continuar depois</button>
+            <button id="exitQuiz" class="ghost" type="button">Sair</button>
+          </div>
         </header>
         <div class="progress-track" aria-label="Progresso">
           <div id="progressBar" class="progress-bar"></div>
@@ -102,8 +112,12 @@
 
         <article class="question-panel">
           <div class="question-topline">
-            <span id="themeTag" class="tag"></span>
-            <span id="reviewTag" class="tag review hidden">Revisar</span>
+            <div class="question-tags">
+              <span id="themeTag" class="tag"></span>
+              <span id="reviewTag" class="tag review hidden">Revisar</span>
+              <span id="savedReviewTag" class="tag saved hidden">Salva</span>
+            </div>
+            <button id="toggleSavedReview" class="small-button review-button" type="button">Marcar para revisar</button>
           </div>
           <h3 id="questionText"></h3>
           <div id="optionsList" class="options-list"></div>
@@ -120,10 +134,14 @@
       <section id="resultScreen" class="screen hidden">
         <header class="result-header">
           <div>
-            <p id="resultStudent" class="eyebrow"></p>
+            <p id="resultStudent" class="eyebrow quiz-meta"></p>
             <h2>Resultado final</h2>
           </div>
-          <button id="newAttempt" class="primary" type="button">Novo simulado</button>
+          <div class="result-actions">
+            <button id="printResult" class="secondary" type="button">Imprimir</button>
+            <button id="retryMissed" class="secondary" type="button">Refazer erradas</button>
+            <button id="newAttempt" class="primary" type="button">Novo simulado</button>
+          </div>
         </header>
 
         <div class="result-grid">
@@ -142,6 +160,8 @@
           <div id="missedQuestions" class="missed-list"></div>
         </section>
       </section>
+
+      <section id="printReport" class="print-report" aria-hidden="true"></section>
     </main>
 
     <script src="questions.js"></script>
