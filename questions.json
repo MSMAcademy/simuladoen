@@ -12680,11 +12680,11 @@
           "text": "given up by the annuitant's refund beneficiary"
         },
         {
-          "label": "B",
+          "label": "D",
           "text": "not distributed to life annuitants who died before life expectancy"
         }
       ],
-      "correctAnswer": "B",
+      "correctAnswer": "D",
       "explanation": "When a life annuitant outlives life expectancy, the funds for additional benefit payments will be derived primarily from funds that were not distributed to life annuitants who died before life expectancy.",
       "explanationPt": "Quando um anuitante vive além da expectativa de vida, os fundos para pagamentos adicionais de benefícios virão principalmente de fundos que não foram distribuídos a anuitantes que morreram antes da expectativa de vida.",
       "theme": "Annuities",
