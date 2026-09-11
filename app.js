@@ -1,5 +1,6 @@
 (function () {
   const bank = window.QUESTION_BANK || { questions: [] };
+  const summaries = window.STUDY_SUMMARIES || [];
   const storageKey = "insurance-sim-history-v1";
   const usageKey = "insurance-sim-question-usage-v1";
   const savedReviewKey = "insurance-sim-saved-review-v1";
@@ -20,6 +21,7 @@
     timerId: null,
     timerSeconds: 0,
     timeExpired: false,
+    summaryLanguage: "pt",
   };
 
   const $ = (id) => document.getElementById(id);
@@ -107,6 +109,14 @@
     screen.classList.remove("hidden");
   }
 
+  function showHomeTab(tab) {
+    const isSummary = tab === "resumos";
+    $("simuladoHome").classList.toggle("hidden", isSummary);
+    $("resumosHome").classList.toggle("hidden", !isSummary);
+    $("simuladoTab").classList.toggle("active", !isSummary);
+    $("resumosTab").classList.toggle("active", isSummary);
+  }
+
   function getExamSeconds(questionCount) {
     const minutesByCount = { 25: 30, 50: 60, 100: 120 };
     return (minutesByCount[questionCount] || Math.ceil(questionCount * 1.2)) * 60;
@@ -175,8 +185,114 @@
 
   function renderStart() {
     renderThemeFilter();
+    renderSummaries();
     renderResumeBox();
     renderHistory();
+  }
+
+  function getQuestionCountsByTheme() {
+    const counts = {};
+    bank.questions.forEach((q) => {
+      const theme = q.theme || "Tema não identificado";
+      counts[theme] = (counts[theme] || 0) + 1;
+    });
+    return counts;
+  }
+
+  function renderSummaries() {
+    const list = $("summaryList");
+    if (!list) return;
+    const query = ($("summarySearch")?.value || "").trim().toLowerCase();
+    const counts = getQuestionCountsByTheme();
+    const labels = getSummaryLabels();
+    const filtered = summaries.filter((item) => {
+      const haystack = [
+        item.theme,
+        ...Object.values(item.content || {}).flatMap((content) => [
+          content.title,
+          content.overview,
+          content.exam,
+          ...(content.sections || []).flatMap((section) => [section.title, ...(section.items || [])]),
+          ...(content.details || []),
+          ...(content.traps || []),
+          ...(content.terms || []).flat(),
+        ]),
+      ].join(" ").toLowerCase();
+      return !query || haystack.includes(query);
+    });
+
+    if (!filtered.length) {
+      list.innerHTML = `<p class="empty">${labels.noResults}</p>`;
+      return;
+    }
+
+    list.innerHTML = filtered
+      .map((item) => {
+        const content = item.content?.[state.summaryLanguage] || item.content?.pt || {};
+        return `
+        <article class="summary-card">
+          <div class="summary-card-head">
+            <div>
+              <span class="tag">${escapeHtml(item.theme)}</span>
+              <h3>${escapeHtml(content.title || item.theme)}</h3>
+            </div>
+            <button class="small-button" type="button" data-study-theme="${escapeHtml(item.theme)}">${labels.studyButton}</button>
+          </div>
+          <div class="summary-copy">
+            <section>
+              <h4>${labels.overview}</h4>
+              <p>${escapeHtml(content.overview || "")}</p>
+            </section>
+            <section>
+              <h4>${labels.exam}</h4>
+              <p>${escapeHtml(content.exam || "")}</p>
+            </section>
+            ${content.sections?.length ? `
+              <div class="study-sections">
+                ${content.sections.map((section, index) => `
+                  <details ${index === 0 ? "open" : ""}>
+                    <summary>${escapeHtml(section.title)}</summary>
+                    <ul>${(section.items || []).map((text) => `<li>${escapeHtml(text)}</li>`).join("")}</ul>
+                  </details>
+                `).join("")}
+              </div>
+            ` : ""}
+            ${content.details?.length ? `
+              <section>
+                <h4>${labels.details}</h4>
+                <ul>${content.details.map((text) => `<li>${escapeHtml(text)}</li>`).join("")}</ul>
+              </section>
+            ` : ""}
+            <section>
+              <h4>${labels.traps}</h4>
+              <ul>${(content.traps || []).map((text) => `<li>${escapeHtml(text)}</li>`).join("")}</ul>
+            </section>
+          </div>
+          <h4 class="terms-title">${labels.terms}</h4>
+          <div class="terms-grid">
+            ${(content.terms || [])
+              .map((term) => `
+                <div class="term-item">
+                  <strong>${escapeHtml(term[0])}</strong>
+                  <span>${escapeHtml(term[1])}</span>
+                </div>
+              `)
+              .join("")}
+          </div>
+          <p class="summary-count">${counts[item.theme] || 0} ${labels.questionCount}</p>
+        </article>
+      `;
+      })
+      .join("");
+  }
+
+  function getSummaryLabels() {
+    const labels = {
+      pt: { overview: "O que é?", exam: "O que a prova costuma cobrar?", details: "Pontos-chave", traps: "Pegadinhas comuns", terms: "Termos importantes", questionCount: "questões disponíveis neste tema.", studyButton: "Estudar esse tema", noResults: "Nenhum resumo encontrado para essa busca." },
+      en: { overview: "What is it?", exam: "What does the exam usually test?", details: "Key points", traps: "Common traps", terms: "Important terms", questionCount: "questions available in this topic.", studyButton: "Study this topic", noResults: "No summaries found for this search." },
+      es: { overview: "¿Qué es?", exam: "¿Qué suele preguntar el examen?", details: "Puntos clave", traps: "Trampas comunes", terms: "Términos importantes", questionCount: "preguntas disponibles en este tema.", studyButton: "Estudiar este tema", noResults: "No se encontraron resúmenes para esta búsqueda." },
+    };
+    return labels[state.summaryLanguage] || labels.pt;
   }
 
   function renderResumeBox() {
@@ -533,6 +649,36 @@
     show(quizScreen);
   }
 
+  function startThemeStudy(theme) {
+    const jurisdictions = getSelectedJurisdictions();
+    if (!jurisdictions.length) {
+      alert("Selecione pelo menos um grupo de questões: Gerais, MA ou FL.");
+      return;
+    }
+    const questionCount = Number(document.querySelector('input[name="questionCount"]:checked')?.value || 25);
+    const questions = selectQuestions(questionCount, jurisdictions, [theme], "all");
+    if (!questions.length) {
+      alert("Não há questões disponíveis para esse tema com o filtro de estado selecionado.");
+      return;
+    }
+    state.student = $("studentName").value.trim();
+    state.mode = "study";
+    state.jurisdictions = jurisdictions;
+    state.focusMode = "all";
+    state.selectedThemes = [theme];
+    state.questions = questions;
+    state.index = 0;
+    state.answers = {};
+    document.querySelector('input[name="mode"][value="study"]').checked = true;
+    document.querySelector('input[name="focusMode"][value="all"]').checked = true;
+    document.querySelectorAll('input[name="themes"]').forEach((item) => {
+      item.checked = item.value === theme;
+    });
+    startTimer(state.questions.length);
+    renderQuestion();
+    show(quizScreen);
+  }
+
   function saveProgress() {
     if (!state.questions.length) return;
     const draft = {
@@ -665,7 +811,20 @@
   $("startForm").addEventListener("change", (event) => {
     if (event.target.name === "jurisdictions" || event.target.name === "focusMode") {
       renderThemeFilter();
+      renderSummaries();
     }
+  });
+  $("summarySearch")?.addEventListener("input", renderSummaries);
+  document.querySelectorAll('input[name="summaryLanguage"]').forEach((input) => {
+    input.addEventListener("change", () => {
+      state.summaryLanguage = input.value;
+      renderSummaries();
+    });
+  });
+  $("simuladoTab")?.addEventListener("click", () => showHomeTab("simulado"));
+  $("resumosTab")?.addEventListener("click", () => {
+    renderSummaries();
+    showHomeTab("resumos");
   });
   $("prevQuestion").addEventListener("click", () => {
     state.index = Math.max(0, state.index - 1);
@@ -706,6 +865,12 @@
   document.addEventListener("click", (event) => {
     if (event.target.closest("#toggleSavedReview")) {
       toggleSavedReview();
+      return;
+    }
+
+    const summaryButton = event.target.closest("[data-study-theme]");
+    if (summaryButton) {
+      startThemeStudy(summaryButton.dataset.studyTheme);
       return;
     }
 

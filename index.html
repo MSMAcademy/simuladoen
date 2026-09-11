@@ -18,79 +18,107 @@
           <h1>Simulado de Licenciamento de Seguros</h1>
         </header>
 
-        <section id="resumeBox" class="resume-box hidden">
-          <div>
-            <strong>Simulado em andamento</strong>
-            <span id="resumeInfo"></span>
+        <nav class="home-tabs" aria-label="Navegação inicial">
+          <button id="simuladoTab" class="home-tab active" type="button">Simulado</button>
+          <button id="resumosTab" class="home-tab" type="button">Resumos</button>
+        </nav>
+
+        <section id="simuladoHome">
+          <section id="resumeBox" class="resume-box hidden">
+            <div>
+              <strong>Simulado em andamento</strong>
+              <span id="resumeInfo"></span>
+            </div>
+            <div class="resume-actions">
+              <button id="resumeAttempt" class="primary" type="button">Continuar</button>
+              <button id="discardAttempt" class="ghost" type="button">Descartar</button>
+            </div>
+          </section>
+
+          <div class="start-grid single">
+            <form id="startForm" class="panel setup-panel">
+              <div class="field">
+                <span>Quantidade de questões</span>
+                <div class="segmented" role="radiogroup" aria-label="Quantidade de questões">
+                  <label><input type="radio" name="questionCount" value="25" checked />25</label>
+                  <label><input type="radio" name="questionCount" value="50" />50</label>
+                  <label><input type="radio" name="questionCount" value="100" />100</label>
+                </div>
+              </div>
+
+              <div class="field">
+                <span>Modo</span>
+                <div class="segmented wide" role="radiogroup" aria-label="Modo do simulado">
+                  <label><input type="radio" name="mode" value="study" checked />Estudo</label>
+                  <label><input type="radio" name="mode" value="exam" />Prova</label>
+                </div>
+                <p class="helper-text">No modo Prova, o cronômetro inicia automaticamente: 25 questões = 30 min, 50 = 60 min, 100 = 120 min.</p>
+              </div>
+
+              <label class="obs-field">
+                Obs.
+                <input id="studentName" type="text" placeholder="Ex.: estudo de annuities, turma de sábado, revisão MA" />
+              </label>
+
+              <div class="field">
+                <span>Filtro de questões</span>
+                <div class="multi-segmented jurisdiction" aria-label="Filtro de questões por estado">
+                  <label><input type="checkbox" name="jurisdictions" value="GENERAL" checked />Gerais</label>
+                  <label><input type="checkbox" name="jurisdictions" value="MA" />MA</label>
+                  <label><input type="checkbox" name="jurisdictions" value="FL" />FL</label>
+                </div>
+              </div>
+
+              <div class="field">
+                <span>Foco de estudo</span>
+                <div class="segmented focus-mode" role="radiogroup" aria-label="Foco de estudo">
+                  <label><input type="radio" name="focusMode" value="all" checked />Todas</label>
+                  <label><input type="radio" name="focusMode" value="wrong" />Mais erradas</label>
+                  <label><input type="radio" name="focusMode" value="saved" />Salvas</label>
+                </div>
+                <p class="helper-text">“Mais erradas” usa o histórico deste navegador. “Salvas” usa as questões marcadas durante o estudo.</p>
+              </div>
+
+              <div class="field themes-field">
+                <div class="field-title-row">
+                  <span>Temas</span>
+                  <button id="clearThemes" class="link-button" type="button">Todos</button>
+                </div>
+                <div id="themeFilter" class="theme-filter"></div>
+              </div>
+
+              <button class="primary start-button" type="submit">Iniciar simulado</button>
+            </form>
           </div>
-          <div class="resume-actions">
-            <button id="resumeAttempt" class="primary" type="button">Continuar</button>
-            <button id="discardAttempt" class="ghost" type="button">Descartar</button>
-          </div>
+
+          <section class="history-section">
+            <div class="section-head">
+              <h2>Histórico local</h2>
+              <button id="clearHistory" class="ghost" type="button">Limpar histórico</button>
+            </div>
+            <div id="historyList" class="history-list empty">Nenhuma tentativa registrada neste navegador.</div>
+          </section>
         </section>
 
-        <div class="start-grid single">
-          <form id="startForm" class="panel setup-panel">
-            <div class="field">
-              <span>Quantidade de questões</span>
-              <div class="segmented" role="radiogroup" aria-label="Quantidade de questões">
-                <label><input type="radio" name="questionCount" value="25" checked />25</label>
-                <label><input type="radio" name="questionCount" value="50" />50</label>
-                <label><input type="radio" name="questionCount" value="100" />100</label>
-              </div>
+        <section id="resumosHome" class="summary-section hidden">
+          <div class="section-head summary-head">
+            <div>
+              <h2>Guia de estudo por tema</h2>
+              <p>Material de apoio organizado pelos assuntos do simulado. As regras estaduais podem variar conforme o estado da prova.</p>
             </div>
-
-            <div class="field">
-              <span>Modo</span>
-              <div class="segmented wide" role="radiogroup" aria-label="Modo do simulado">
-                <label><input type="radio" name="mode" value="study" checked />Estudo</label>
-                <label><input type="radio" name="mode" value="exam" />Prova</label>
+            <div class="summary-tools">
+              <div class="language-switch" role="radiogroup" aria-label="Idioma dos resumos">
+                <label><input type="radio" name="summaryLanguage" value="pt" checked />PT</label>
+                <label><input type="radio" name="summaryLanguage" value="en" />EN</label>
+                <label><input type="radio" name="summaryLanguage" value="es" />ES</label>
               </div>
-              <p class="helper-text">No modo Prova, o cronômetro inicia automaticamente: 25 questões = 30 min, 50 = 60 min, 100 = 120 min.</p>
+              <label class="summary-search">
+                Buscar
+                <input id="summarySearch" type="text" placeholder="Ex.: annuity, beneficiary, underwriting" />
+              </label>
             </div>
-
-            <label class="obs-field">
-              Obs.
-              <input id="studentName" type="text" placeholder="Ex.: estudo de annuities, turma de sábado, revisão MA" />
-            </label>
-
-            <div class="field">
-              <span>Filtro de questões</span>
-              <div class="multi-segmented jurisdiction" aria-label="Filtro de questões por estado">
-                <label><input type="checkbox" name="jurisdictions" value="GENERAL" checked />Gerais</label>
-                <label><input type="checkbox" name="jurisdictions" value="MA" />MA</label>
-                <label><input type="checkbox" name="jurisdictions" value="FL" />FL</label>
-              </div>
-            </div>
-
-            <div class="field">
-              <span>Foco de estudo</span>
-              <div class="segmented focus-mode" role="radiogroup" aria-label="Foco de estudo">
-                <label><input type="radio" name="focusMode" value="all" checked />Todas</label>
-                <label><input type="radio" name="focusMode" value="wrong" />Mais erradas</label>
-                <label><input type="radio" name="focusMode" value="saved" />Salvas</label>
-              </div>
-              <p class="helper-text">“Mais erradas” usa o histórico deste navegador. “Salvas” usa as questões marcadas durante o estudo.</p>
-            </div>
-
-            <div class="field themes-field">
-              <div class="field-title-row">
-                <span>Temas</span>
-                <button id="clearThemes" class="link-button" type="button">Todos</button>
-              </div>
-              <div id="themeFilter" class="theme-filter"></div>
-            </div>
-
-            <button class="primary start-button" type="submit">Iniciar simulado</button>
-          </form>
-        </div>
-
-        <section class="history-section">
-          <div class="section-head">
-            <h2>Histórico local</h2>
-            <button id="clearHistory" class="ghost" type="button">Limpar histórico</button>
           </div>
-          <div id="historyList" class="history-list empty">Nenhuma tentativa registrada neste navegador.</div>
+          <div id="summaryList" class="summary-list"></div>
         </section>
       </section>
 
@@ -165,6 +193,7 @@
     </main>
 
     <script src="questions.js"></script>
+    <script src="summaries.js"></script>
     <script src="app.js"></script>
   </body>
 </html>
